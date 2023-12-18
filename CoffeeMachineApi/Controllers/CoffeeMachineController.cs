@@ -1,4 +1,5 @@
 using CoffeeMachineApi.Models;
+using CoffeeMachineApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoffeeMachineApi.Controllers;

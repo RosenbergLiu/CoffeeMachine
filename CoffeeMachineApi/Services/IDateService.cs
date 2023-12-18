@@ -1,4 +1,4 @@
-namespace CoffeeMachineApi;
+namespace CoffeeMachineApi.Services;
 
 public interface IDateService
 {

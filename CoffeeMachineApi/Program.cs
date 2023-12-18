@@ -1,3 +1,5 @@
+using CoffeeMachineApi.Services;
+
 namespace CoffeeMachineApi
 {
     public class Program
