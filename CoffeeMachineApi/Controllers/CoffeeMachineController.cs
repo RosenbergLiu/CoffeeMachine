@@ -1,6 +1,7 @@
 using CoffeeMachineApi.Models;
 using CoffeeMachineApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace CoffeeMachineApi.Controllers;
 
@@ -14,18 +15,22 @@ public class CoffeeMachineController : ControllerBase
     {
         _dateService = dateService;
     }
-    
+
     [HttpGet(Name = "brew-coffee")]
-    public async Task<IActionResult> BrewCoffee()
+    public IActionResult BrewCoffee()
     {
+#if DEBUG
         DateTime currentDate = _dateService.GetCurrentDate();
-        
+#else
+        DateTime currentDate = DateTime.Today;
+#endif
+
         if (currentDate == new DateTime(DateTime.Now.Year, 4, 1))
         {
-            return new StatusCodeResult(418);
+            return StatusCode(418);
         }
 
-        return Ok(new CoffeeMachineRes()
+        return StatusCode(200, new CoffeeMachineRes()
         {
             Message = "Your piping hot coffee is ready",
             Prepared = currentDate.ToString("o")

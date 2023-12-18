@@ -14,12 +14,8 @@ namespace CoffeeMachineApi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             
-#if DEBUG
             builder.Services.AddSingleton<IDateService>();
-#else
-            builder.Services.AddSingleton<IDateService, RealDateService>();
-#endif
-            
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
