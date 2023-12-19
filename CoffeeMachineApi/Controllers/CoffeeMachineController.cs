@@ -29,7 +29,7 @@ public class CoffeeMachineController : ControllerBase
         {
             DateTime currentDate = _dateService.GetCurrentDate();
 
-            if (currentDate == new DateTime(DateTime.Now.Year, 4, 1))
+            if (currentDate.Date == new DateTime(DateTime.Now.Year, 4, 1).Date)
             {
                 HttpContext.Response.StatusCode = 418;
                 return new EmptyResult();
