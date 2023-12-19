@@ -22,19 +22,17 @@ public class CoffeeMachineController : ControllerBase
         int currentCount = Interlocked.Increment(ref _requestCount);
         if (currentCount % 5 == 0)
         {
-            return StatusCode(503);
+            HttpContext.Response.StatusCode = 503;
+            return new EmptyResult();
         }
         else
         {
-#if DEBUG
             DateTime currentDate = _dateService.GetCurrentDate();
-#else
-            DateTime currentDate = DateTime.Today;
-#endif
 
             if (currentDate == new DateTime(DateTime.Now.Year, 4, 1))
             {
-                return StatusCode(418);
+                HttpContext.Response.StatusCode = 418;
+                return new EmptyResult();
             }
 
             return StatusCode(200, new CoffeeMachineRes()
