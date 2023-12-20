@@ -34,7 +34,7 @@ public class CoffeeMachineController : ControllerBase
                 HttpContext.Response.StatusCode = 418;
                 return new EmptyResult();
             }
-
+            
             return StatusCode(200, new CoffeeMachineRes()
             {
                 Message = "Your piping hot coffee is ready",
