@@ -49,7 +49,7 @@ public class CoffeeMachineControllerTest
         // Check the content of the response
         var responseContent = objectResult.Value as CoffeeMachineRes;
         Assert.IsNotNull(responseContent);
-        Assert.AreEqual("Your piping hot coffee is ready", responseContent.Message);
+        Assert.AreEqual("Your piping hot coffee is ready", responseContent.Message, "The respond message is not 'Your piping hot coffee is ready'");
         
         // Verify the date format
         string expectedDateFormat = "yyyy-MM-ddTHH:mm:ssK"; // ISO 8601 format
@@ -113,7 +113,7 @@ public class CoffeeMachineControllerTest
     {
         // Arrange
         int numberOfSimultaneousRequests = 5;
-        var responses = new List<IActionResult>();
+        List<IActionResult> responses = new List<IActionResult>();
 
         // Act
         var tasks = new List<Task<IActionResult>>();
@@ -124,10 +124,8 @@ public class CoffeeMachineControllerTest
         responses = (await Task.WhenAll(tasks)).ToList();
 
         // Get the private static field value for _requestCount using reflection
-        var requestCountField = typeof(CoffeeMachineController)
-            .GetField("_requestCount", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-
-        var requestCount = (int)requestCountField.GetValue(null);
+        var requestCount = typeof(CoffeeMachineController)?.GetField("_requestCount", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)?
+            .GetValue(null);
 
         // Assert the correct request count
         Assert.AreEqual(numberOfSimultaneousRequests, requestCount, "The request count not match the number of made requests.");
