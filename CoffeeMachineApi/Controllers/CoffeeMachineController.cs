@@ -22,8 +22,7 @@ public class CoffeeMachineController : ControllerBase
         int currentCount = Interlocked.Increment(ref _requestCount);
         if (currentCount % 5 == 0)
         {
-            HttpContext.Response.StatusCode = 503;
-            return new EmptyResult();
+            return StatusCode(503, null);
         }
         else
         {
@@ -31,8 +30,7 @@ public class CoffeeMachineController : ControllerBase
 
             if (currentDate.Date == new DateTime(DateTime.Now.Year, 4, 1).Date)
             {
-                HttpContext.Response.StatusCode = 418;
-                return new EmptyResult();
+                return StatusCode(418, null);
             }
             
             return StatusCode(200, new CoffeeMachineRes()
