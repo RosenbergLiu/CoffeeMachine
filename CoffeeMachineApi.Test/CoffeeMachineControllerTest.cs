@@ -107,4 +107,51 @@ public class CoffeeMachineControllerTest
         Assert.IsNotNull(objectResult, "The result should not be null on April Fool's Day.");
         Assert.AreEqual(418, objectResult.StatusCode, $"The status code should be 418 but it was {objectResult.StatusCode.ToString()}");
     }
+    
+    [TestMethod]
+    public async Task BrewCoffee_ThreadSafety_OfRequestCount()
+    {
+        // Arrange
+        int numberOfSimultaneousRequests = 5;
+        var responses = new List<IActionResult>();
+
+        // Act
+        var tasks = new List<Task<IActionResult>>();
+        for (int i = 0; i < numberOfSimultaneousRequests; i++)
+        {
+            tasks.Add(Task.Run(() => controller.BrewCoffee()));
+        }
+        responses = (await Task.WhenAll(tasks)).ToList();
+
+        // Get the private static field value for _requestCount using reflection
+        var requestCountField = typeof(CoffeeMachineController)
+            .GetField("_requestCount", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+
+        var requestCount = (int)requestCountField.GetValue(null);
+
+        // Assert the correct request count
+        Assert.AreEqual(numberOfSimultaneousRequests, requestCount, "The request count not match the number of made requests.");
+
+        // Analysis of responses
+        int okCount = 0;
+        int serviceUnavailableCount = 0;
+        foreach (var response in responses)
+        {
+            if (response is ObjectResult objectResult)
+            {
+                if (objectResult.StatusCode == 200)
+                {
+                    okCount++;
+                }
+                else if (objectResult.StatusCode == 503)
+                {
+                    serviceUnavailableCount++;
+                }
+            }
+        }
+
+        // 5 requests come in only 4 can return Ok
+        Assert.AreEqual(4, okCount, "There should be 4 successful (200 OK) responses.");
+        Assert.AreEqual(1, serviceUnavailableCount, "There should be 1 service unavailable (503) responses.");
+    }
 }
