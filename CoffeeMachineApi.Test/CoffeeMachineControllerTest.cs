@@ -78,7 +78,7 @@ public class CoffeeMachineControllerTest
                 Assert.IsInstanceOfType(result, typeof(ObjectResult));
                 var objectResult = result as ObjectResult;
                 Assert.IsNotNull(objectResult);
-                Assert.AreEqual(503, objectResult.StatusCode, $"Request {i} returns {objectResult.StatusCode}");
+                Assert.AreEqual(503, objectResult.StatusCode, $"Request {i} returns {objectResult.StatusCode.ToString()}");
                 Assert.IsNull(objectResult.Value as CoffeeMachineRes);
             }
             else
@@ -87,8 +87,24 @@ public class CoffeeMachineControllerTest
                 Assert.IsInstanceOfType(result, typeof(ObjectResult));
                 var objectResult = result as ObjectResult;
                 Assert.IsNotNull(objectResult);
-                Assert.AreEqual(200, objectResult.StatusCode, $"Request {i} returns {objectResult.StatusCode}");
+                Assert.AreEqual(200, objectResult.StatusCode, $"Request {i} returns {objectResult.StatusCode.ToString()}");
             }
         }
+    }
+    
+    [TestMethod]
+    public void BrewCoffee_Returns418ImATeapot_OnAprilFoolsDay()
+    {
+        // Arrange
+        var aprilFoolsDay = new DateTime(DateTime.Now.Year, 4, 1);
+        mockDateService.Setup(service => service.GetCurrentDate()).Returns(aprilFoolsDay);
+        // Act
+        var result = controller.BrewCoffee();
+
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(ObjectResult));
+        var objectResult = result as ObjectResult;
+        Assert.IsNotNull(objectResult, "The result should not be null on April Fool's Day.");
+        Assert.AreEqual(418, objectResult.StatusCode, $"The status code should be 418 but it was {objectResult.StatusCode.ToString()}");
     }
 }
