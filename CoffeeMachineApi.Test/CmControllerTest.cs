@@ -9,14 +9,17 @@ namespace CoffeeMachineApi.Test;
 [TestClass]
 public class CmControllerTest
 {
-    private Mock<IDateService> _mockDateService;
+    private readonly Mock<IDateService> _mockDateService;
     private CoffeeMachineController _controller;
 
-    [TestInitialize]
-    public void SetUp()
+    public CmControllerTest()
     {
-        // Initialize mock object for IDateService
         _mockDateService = new Mock<IDateService>();
+    }
+    
+    [TestInitialize]
+    public void Initialize()
+    {
         // Setup mock to return a date that is not 1 of April
         _mockDateService.Setup(service => service.GetCurrentDate()).Returns(new DateTime(2023, 3, 2));
 
@@ -112,15 +115,11 @@ public class CmControllerTest
     {
         // Arrange
         int numberOfSimultaneousRequests = 5;
-        List<IActionResult> responses = new List<IActionResult>();
 
         // Act
-        var tasks = new List<Task<IActionResult>>();
-        for (int i = 0; i < numberOfSimultaneousRequests; i++)
-        {
-            tasks.Add(Task.Run(() => _controller.BrewCoffee()));
-        }
-        responses = (await Task.WhenAll(tasks)).ToList();
+        var tasks = Enumerable.Range(0, numberOfSimultaneousRequests)
+            .Select(_ => Task.Run(() => _controller.BrewCoffee()));
+        List<IActionResult> responses = (await Task.WhenAll(tasks)).ToList();
 
         // Get the private static field value for _requestCount using reflection
         var requestCount = typeof(CoffeeMachineController)?.GetField("_requestCount", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)?
