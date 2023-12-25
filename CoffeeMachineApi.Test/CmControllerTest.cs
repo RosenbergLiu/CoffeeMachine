@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CoffeeMachineApi.Controllers;
 using CoffeeMachineApi.Models;
 using CoffeeMachineApi.Services;
@@ -9,17 +10,16 @@ namespace CoffeeMachineApi.Test;
 [TestClass]
 public class CmControllerTest
 {
-    private readonly Mock<IDateService> _mockDateService;
+    private Mock<IDateService> _mockDateService;
     private CoffeeMachineController _controller;
-
-    public CmControllerTest()
-    {
-        _mockDateService = new Mock<IDateService>();
-    }
+    private const string ExpectedSuccessMessage = "Your piping hot coffee is ready";
+    private const string ExpectedDateFormat = "yyyy-MM-ddTHH:mm:ssK"; // ISO 8601 format
+    private const int NumberOfSimultaneousRequests = 5;
     
     [TestInitialize]
     public void Initialize()
     {
+        _mockDateService = new Mock<IDateService>();
         // Setup mock to return a date that is not 1 of April
         _mockDateService.Setup(service => service.GetCurrentDate()).Returns(new DateTime(2023, 3, 2));
 
@@ -36,32 +36,19 @@ public class CmControllerTest
     public void BrewCoffee_Returns200OK_ForNormalRequest()
     {
         // Act
-        var result = _controller.BrewCoffee();
+        var result = _controller.BrewCoffee() as ObjectResult;
 
         // Assert
-        // Check if the result is of type ObjectResult
-        Assert.IsInstanceOfType(result, typeof(ObjectResult));
-            
-        var objectResult = result as ObjectResult;
-
-        // Ensure the result is not null and the status code is 200
-        Assert.IsNotNull(objectResult);
-        Assert.AreEqual(200, objectResult.StatusCode);
+        Assert.IsNotNull(result);
+        Assert.AreEqual(200, result.StatusCode);
 
         // Check the content of the response
-        var responseContent = objectResult.Value as CoffeeMachineRes;
-        Assert.IsNotNull(responseContent);
-        Assert.AreEqual("Your piping hot coffee is ready", responseContent.Message, "The respond message is not 'Your piping hot coffee is ready'");
-        
-        // Verify the date format
-        string expectedDateFormat = "yyyy-MM-ddTHH:mm:ssK"; // ISO 8601 format
-        string actualPreparedDate = responseContent.Prepared;
-        DateTime parsedDate;
-        
+        var responseContent = result.Value as CoffeeMachineRes;
+        Assert.IsNotNull(responseContent, "The response content should not be null.");
+        Assert.AreEqual(ExpectedSuccessMessage, responseContent.Message, "The respond message is not as expected.");
 
-        // Try to parse the date string from the response to ensure it's in the expected format
-        bool canParse = DateTime.TryParseExact(actualPreparedDate, expectedDateFormat, null, System.Globalization.DateTimeStyles.AssumeLocal, out parsedDate);
-    
+        // Verify the date format
+        bool canParse = DateTime.TryParseExact(responseContent.Prepared, ExpectedDateFormat, null, System.Globalization.DateTimeStyles.AssumeLocal, out _);
         Assert.IsTrue(canParse, "The prepared date is not in the expected format.");
     }
     
@@ -71,25 +58,21 @@ public class CmControllerTest
         for (int i = 1; i <= 10; i++) // Test for 10 requests to cover two cycles
         {
             // Act
-            var result = _controller.BrewCoffee();
+            var result = _controller.BrewCoffee() as ObjectResult;
 
             // Assert
             if (i % 5 == 0)
             {
                 // Every fifth request should be a 503 Service Unavailable
-                Assert.IsInstanceOfType(result, typeof(ObjectResult));
-                var objectResult = result as ObjectResult;
-                Assert.IsNotNull(objectResult);
-                Assert.AreEqual(503, objectResult.StatusCode);
-                Assert.IsNull(objectResult.Value as CoffeeMachineRes);
+                Assert.IsNotNull(result);
+                Assert.AreEqual(503, result.StatusCode);
+                Assert.IsNull(result.Value as CoffeeMachineRes);
             }
             else
             {
                 // Other requests should be 200 OK
-                Assert.IsInstanceOfType(result, typeof(ObjectResult));
-                var objectResult = result as ObjectResult;
-                Assert.IsNotNull(objectResult);
-                Assert.AreEqual(200, objectResult.StatusCode);
+                Assert.IsNotNull(result);
+                Assert.AreEqual(200, result.StatusCode);
             }
         }
     }
@@ -101,53 +84,33 @@ public class CmControllerTest
         var aprilFoolsDay = new DateTime(DateTime.Now.Year, 4, 1);
         _mockDateService.Setup(service => service.GetCurrentDate()).Returns(aprilFoolsDay);
         // Act
-        var result = _controller.BrewCoffee();
+        var result = _controller.BrewCoffee() as ObjectResult;
 
         // Assert
-        Assert.IsInstanceOfType(result, typeof(ObjectResult));
-        var objectResult = result as ObjectResult;
-        Assert.IsNotNull(objectResult, "The result should not be null on April Fool's Day.");
-        Assert.AreEqual(418, objectResult.StatusCode);
+        Assert.IsNotNull(result, "The result should not be null on April Fool's Day.");
+        Assert.AreEqual(418, result.StatusCode);
     }
     
     [TestMethod]
     public async Task BrewCoffee_ThreadSafety_OfRequestCount()
     {
-        // Arrange
-        int numberOfSimultaneousRequests = 5;
-
         // Act
-        var tasks = Enumerable.Range(0, numberOfSimultaneousRequests)
-            .Select(_ => Task.Run(() => _controller.BrewCoffee()));
-        List<IActionResult> responses = (await Task.WhenAll(tasks)).ToList();
-
+        var responses = await Task.WhenAll(
+            Enumerable.Range(0, NumberOfSimultaneousRequests).Select(_ => Task.Run(() => _controller.BrewCoffee()))
+        );
+        
         // Get the private static field value for _requestCount using reflection
         var requestCount = typeof(CoffeeMachineController)?.GetField("_requestCount", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)?
             .GetValue(null);
-
         // Assert the correct request count
-        Assert.AreEqual(numberOfSimultaneousRequests, requestCount, "The request count not match the number of made requests.");
+        Assert.AreEqual(NumberOfSimultaneousRequests, requestCount, "The request count does not match the number of made requests.");
 
-        // Analysis of responses
-        int okCount = 0;
-        int serviceUnavailableCount = 0;
-        foreach (var response in responses)
-        {
-            if (response is ObjectResult objectResult)
-            {
-                if (objectResult.StatusCode == 200)
-                {
-                    okCount++;
-                }
-                else if (objectResult.StatusCode == 503)
-                {
-                    serviceUnavailableCount++;
-                }
-            }
-        }
+        // Analysis responses
+        var objectResults = responses.Cast<ObjectResult>().ToList();
+        int okCount = objectResults.Count(r => r.StatusCode == 200);
+        int serviceUnavailableCount = objectResults.Count(r => r.StatusCode == 503);
 
-        // 5 requests come in only 4 can return Ok
         Assert.AreEqual(4, okCount, "There should be 4 successful (200 OK) responses.");
-        Assert.AreEqual(1, serviceUnavailableCount, "There should be 1 service unavailable (503) responses.");
+        Assert.AreEqual(1, serviceUnavailableCount, "There should be 1 service unavailable (503) response.");
     }
 }
