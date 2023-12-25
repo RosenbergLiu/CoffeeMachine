@@ -18,8 +18,12 @@ public class CmControllerIntegrationTest
     
     public CmControllerIntegrationTest()
     {
-        // Initialize mock object for IDateService
         _mockDateService = new Mock<IDateService>();
+    }
+
+    [TestInitialize]
+    public void Initialize()
+    {
         // Setup mock to return a date that is not 1 of April
         _mockDateService.Setup(service => service.GetCurrentDate()).Returns(new DateTime(2023, 3, 2));
 
@@ -34,7 +38,7 @@ public class CmControllerIntegrationTest
                 });
             });
         _client = _factory.CreateClient();
-        
+    
         // Reset the static request count before each test
         typeof(CoffeeMachineController)
             .GetField("_requestCount", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
@@ -94,5 +98,30 @@ public class CmControllerIntegrationTest
         Assert.AreEqual((HttpStatusCode)418, response.StatusCode);
         // Assert - Empty response
         Assert.AreEqual("", await response.Content.ReadAsStringAsync()!);
+    }
+    
+    [TestMethod]
+    public async Task BrewCoffee_ThreadSafety_OfRequestCount()
+    {
+        // Arrange
+        int numberOfSimultaneousRequests = 5;
+    
+        // Act
+        var tasks = Enumerable.Range(0, numberOfSimultaneousRequests)
+            .Select(_ => _client.GetAsync("/brew-coffee"));
+
+        List<HttpResponseMessage> responses = (await Task.WhenAll(tasks)).ToList();
+
+        // Assert
+        // Verify the total number of responses equals the number of requests sent
+        Assert.AreEqual(numberOfSimultaneousRequests, responses.Count, "The number of responses should match the number of made requests.");
+
+        // Analysis of responses
+        int okCount = responses.Count(r => r.StatusCode == HttpStatusCode.OK);
+        int serviceUnavailableCount = responses.Count(r => r.StatusCode == HttpStatusCode.ServiceUnavailable);
+
+        // 5 requests come in; only 4 can return Ok if every fifth request is supposed to fail
+        Assert.AreEqual(4, okCount, "There should be 4 successful (200 OK) responses.");
+        Assert.AreEqual(1, serviceUnavailableCount, "There should be 1 service unavailable (503) response.");
     }
 }
