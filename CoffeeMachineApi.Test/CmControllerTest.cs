@@ -7,7 +7,7 @@ using Moq;
 namespace CoffeeMachineApi.Test;
 
 [TestClass]
-public class CMControllerTest
+public class CmControllerTest
 {
     private Mock<IDateService> _mockDateService;
     private CoffeeMachineController _controller;

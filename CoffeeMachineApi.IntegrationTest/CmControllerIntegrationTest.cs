@@ -7,13 +7,13 @@ using Moq;
 namespace CoffeeMachineApi.IntegrationTest;
 
 [TestClass]
-public class CMControllerIntegrationTest
+public class CmControllerIntegrationTest
 {
     private static WebApplicationFactory<Program> _factory;
     private static HttpClient _client;
     private readonly Mock<IDateService> _mockDateService;
     
-    public CMControllerIntegrationTest()
+    public CmControllerIntegrationTest()
     {
         // Initialize mock object for IDateService
         _mockDateService = new Mock<IDateService>();
