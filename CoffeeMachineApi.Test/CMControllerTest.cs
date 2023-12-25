@@ -9,19 +9,19 @@ namespace CoffeeMachineApi.Test;
 [TestClass]
 public class CMControllerTest
 {
-    private Mock<IDateService> mockDateService;
-    private CoffeeMachineController controller;
+    private Mock<IDateService> _mockDateService;
+    private CoffeeMachineController _controller;
 
     [TestInitialize]
     public void SetUp()
     {
         // Initialize mock object for IDateService
-        mockDateService = new Mock<IDateService>();
+        _mockDateService = new Mock<IDateService>();
         // Setup mock to return a date that is not 1 of April
-        mockDateService.Setup(service => service.GetCurrentDate()).Returns(new DateTime(2023, 3, 2));
+        _mockDateService.Setup(service => service.GetCurrentDate()).Returns(new DateTime(2023, 3, 2));
 
         // Initialize the controller with the mock object
-        controller = new CoffeeMachineController(mockDateService.Object);
+        _controller = new CoffeeMachineController(_mockDateService.Object);
         
         // Reset the static request count before each test
         typeof(CoffeeMachineController)
@@ -33,7 +33,7 @@ public class CMControllerTest
     public void BrewCoffee_Returns200OK_ForNormalRequest()
     {
         // Act
-        var result = controller.BrewCoffee();
+        var result = _controller.BrewCoffee();
 
         // Assert
         // Check if the result is of type ObjectResult
@@ -68,7 +68,7 @@ public class CMControllerTest
         for (int i = 1; i <= 10; i++) // Test for 10 requests to cover two cycles
         {
             // Act
-            var result = controller.BrewCoffee();
+            var result = _controller.BrewCoffee();
 
             // Assert
             if (i % 5 == 0)
@@ -77,7 +77,7 @@ public class CMControllerTest
                 Assert.IsInstanceOfType(result, typeof(ObjectResult));
                 var objectResult = result as ObjectResult;
                 Assert.IsNotNull(objectResult);
-                Assert.AreEqual(503, objectResult.StatusCode, $"Request {i} returns {objectResult.StatusCode.ToString()}");
+                Assert.AreEqual(503, objectResult.StatusCode);
                 Assert.IsNull(objectResult.Value as CoffeeMachineRes);
             }
             else
@@ -86,7 +86,7 @@ public class CMControllerTest
                 Assert.IsInstanceOfType(result, typeof(ObjectResult));
                 var objectResult = result as ObjectResult;
                 Assert.IsNotNull(objectResult);
-                Assert.AreEqual(200, objectResult.StatusCode, $"Request {i} returns {objectResult.StatusCode.ToString()}");
+                Assert.AreEqual(200, objectResult.StatusCode);
             }
         }
     }
@@ -96,15 +96,15 @@ public class CMControllerTest
     {
         // Arrange
         var aprilFoolsDay = new DateTime(DateTime.Now.Year, 4, 1);
-        mockDateService.Setup(service => service.GetCurrentDate()).Returns(aprilFoolsDay);
+        _mockDateService.Setup(service => service.GetCurrentDate()).Returns(aprilFoolsDay);
         // Act
-        var result = controller.BrewCoffee();
+        var result = _controller.BrewCoffee();
 
         // Assert
         Assert.IsInstanceOfType(result, typeof(ObjectResult));
         var objectResult = result as ObjectResult;
         Assert.IsNotNull(objectResult, "The result should not be null on April Fool's Day.");
-        Assert.AreEqual(418, objectResult.StatusCode, $"The status code should be 418 but it was {objectResult.StatusCode.ToString()}");
+        Assert.AreEqual(418, objectResult.StatusCode);
     }
     
     [TestMethod]
@@ -118,7 +118,7 @@ public class CMControllerTest
         var tasks = new List<Task<IActionResult>>();
         for (int i = 0; i < numberOfSimultaneousRequests; i++)
         {
-            tasks.Add(Task.Run(() => controller.BrewCoffee()));
+            tasks.Add(Task.Run(() => _controller.BrewCoffee()));
         }
         responses = (await Task.WhenAll(tasks)).ToList();
 
