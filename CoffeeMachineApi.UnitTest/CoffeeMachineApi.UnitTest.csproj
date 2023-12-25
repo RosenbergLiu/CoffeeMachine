@@ -7,7 +7,7 @@
 
         <IsPackable>false</IsPackable>
 
-        <RootNamespace>CoffeeMachineApi.Test</RootNamespace>
+        <RootNamespace>CoffeeMachineApi.UnitTest</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

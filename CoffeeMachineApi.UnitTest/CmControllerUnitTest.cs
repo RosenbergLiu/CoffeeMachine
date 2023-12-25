@@ -5,10 +5,10 @@ using CoffeeMachineApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
-namespace CoffeeMachineApi.Test;
+namespace CoffeeMachineApi.UnitTest;
 
 [TestClass]
-public class CmControllerTest
+public class CmControllerUnitTest
 {
     private Mock<IDateService> _mockDateService;
     private CoffeeMachineController _controller;
