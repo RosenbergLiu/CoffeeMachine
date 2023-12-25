@@ -19,6 +19,8 @@ builder.Services.AddSwaggerGen();
             
 builder.Services.AddSingleton<IDateService, RealDateService>();
 
+builder.Services.AddSingleton<IWeatherService, WeatherService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
