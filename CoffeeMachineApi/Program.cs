@@ -1,5 +1,8 @@
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using CoffeeMachineApi.Services;
+
+[assembly: InternalsVisibleTo("CoffeeMachineApi.IntegrationTest")]
 
 var builder = WebApplication.CreateBuilder(args);
 
