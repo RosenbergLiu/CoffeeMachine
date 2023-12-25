@@ -5,7 +5,7 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoffeeMachineApi", "CoffeeMachineApi\CoffeeMachineApi.csproj", "{8EDB6C1E-30D1-4A15-960D-80445D98942B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoffeeMachineApi.Test", "CoffeeMachineApi.Test\CoffeeMachineApi.Test.csproj", "{2388BD79-043B-4CA7-9D42-F5B62D256B61}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoffeeMachineApi.UnitTest", "CoffeeMachineApi.UnitTest\CoffeeMachineApi.UnitTest.csproj", "{2388BD79-043B-4CA7-9D42-F5B62D256B61}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoffeeMachineApi.IntegrationTest", "CoffeeMachineApi.IntegrationTest\CoffeeMachineApi.IntegrationTest.csproj", "{F62F32A8-306B-4CCC-A78D-74C4B2C8844E}"
 EndProject
