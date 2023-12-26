@@ -1,11 +1,7 @@
-using Microsoft.AspNetCore.Mvc.Testing;
-using System.Net;
 using System.Text.Json;
-using CoffeeMachineApi.Controllers;
-using CoffeeMachineApi.Models;
-using CoffeeMachineApi.Services;
+using System.Net;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 
 namespace CoffeeMachineApi.Test;
 

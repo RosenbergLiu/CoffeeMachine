@@ -1,8 +1,4 @@
-using CoffeeMachineApi.Controllers;
-using CoffeeMachineApi.Models;
-using CoffeeMachineApi.Services;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
 
 namespace CoffeeMachineApi.Test;
 
