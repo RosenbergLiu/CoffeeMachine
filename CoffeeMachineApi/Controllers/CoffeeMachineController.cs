@@ -1,3 +1,4 @@
+using System.Net;
 using CoffeeMachineApi.Models;
 using CoffeeMachineApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -11,18 +12,18 @@ public class CoffeeMachineController : ControllerBase
     private static int _requestCount = 0;
     private readonly IDateService _dateService;
     private readonly IWeatherService _weatherService;
+    private readonly ILogger<CoffeeMachineController> _logger;
 
-    public CoffeeMachineController(IDateService dateService, IWeatherService weatherService)
+    public CoffeeMachineController(IDateService dateService, IWeatherService weatherService, ILogger<CoffeeMachineController> logger)
     {
         _dateService = dateService;
         _weatherService = weatherService;
+        _logger = logger;
     }
 
     [HttpGet("/brew-coffee")]
     public async Task<IActionResult> BrewCoffee()
     {
-        
-        
         int currentCount = Interlocked.Increment(ref _requestCount);
         
         // Return 503 on fifth request
@@ -38,12 +39,19 @@ public class CoffeeMachineController : ControllerBase
             return StatusCode(418, null);
         }
         
-        //Get client IP
-        string? ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+        // Get the client IP
+        var ipAddress = HttpContext.Connection.RemoteIpAddress;
+        
+        // Get the celsius temperature based on client's IP location
+        double? celsiusTemp = await _weatherService.GetCurrentTemperatureAsync(ipAddress);
 
-        double? temp = await _weatherService.GetCurrentTemperatureAsync(ip);
-
-        if (temp is not null & temp > 30)
+        
+        // If the api have something wrong that cannot return temperature (null), return normal message.
+        if (celsiusTemp is null)
+        {
+            _logger.LogWarning("Weather Service Unavailable");
+        }
+        else if (celsiusTemp > 30)
         {
             return StatusCode(200, new CoffeeMachineRes()
             {

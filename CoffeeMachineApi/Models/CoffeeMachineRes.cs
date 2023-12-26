@@ -6,7 +6,12 @@ public class CoffeeMachineRes
 {
     [JsonPropertyName("message")]
     public string Message { get; set; }
-    
+
     [JsonPropertyName("prepared")]
     public string Prepared { get; set; }
+
+    public CoffeeMachineRes()
+    {
+        Message = Prepared = String.Empty;
+    }
 }

@@ -8,11 +8,11 @@ public class OpenWeatherRes
     public OpenWeatherResMain Main { get; set; }
 
     [JsonPropertyName("cod")]
-    public string Cod { get; set; }
+    public int Cod { get; set; }
 
     public OpenWeatherRes()
     {
         Main = new OpenWeatherResMain();
-        Cod = string.Empty;
+        Cod = 0;
     }
 }

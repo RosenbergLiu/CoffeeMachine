@@ -11,8 +11,14 @@ public class GeoLocationRes
     public string City { get; set; }
     
     [JsonPropertyName("lat")]
-    public string Lat { get; set; }
+    public double Lat { get; set; }
     
     [JsonPropertyName("lon")]
-    public string Lon { get; set; }
+    public double Lon { get; set; }
+
+    public GeoLocationRes()
+    {
+        Status = City = String.Empty;
+        Lat = Lon = 0;
+    }
 }
