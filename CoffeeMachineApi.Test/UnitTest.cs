@@ -1,14 +1,13 @@
-using System.Diagnostics;
 using CoffeeMachineApi.Controllers;
 using CoffeeMachineApi.Models;
 using CoffeeMachineApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
-namespace CoffeeMachineApi.UnitTest;
+namespace CoffeeMachineApi.Test;
 
 [TestClass]
-public class CmControllerUnitTest
+public class UnitTest
 {
     private Mock<IDateService> _mockDateService;
     private CoffeeMachineController _controller;
@@ -100,7 +99,7 @@ public class CmControllerUnitTest
         );
         
         // Get the private static field value for _requestCount using reflection
-        var requestCount = typeof(CoffeeMachineController)?.GetField("_requestCount", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)?
+        var requestCount = typeof(CoffeeMachineController).GetField("_requestCount", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)?
             .GetValue(null);
         // Assert the correct request count
         Assert.AreEqual(NumberOfSimultaneousRequests, requestCount, "The request count does not match the number of made requests.");
