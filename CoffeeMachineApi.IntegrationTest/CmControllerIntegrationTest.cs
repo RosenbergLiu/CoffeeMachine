@@ -27,9 +27,10 @@ public class CmControllerIntegrationTest
         // Setup mock to return a date that is not 1 of April
         _mockDateService.Setup(service => service.GetCurrentDate()).Returns(new DateTime(2023, 3, 2));
         
+        // Setup mock to return 20 degree by default
         _mockWeatherService = new Mock<IWeatherService>();
         _mockWeatherService.Setup(service => service.GetTemperatureAsync(It.IsAny<IPAddress>()))
-            .ReturnsAsync(20);
+            .ReturnsAsync(new WeatherServiceRes((double)20));
 
         // Setup the factory for in-memory testing with the Program class
         _factory = new WebApplicationFactory<Program>()
@@ -80,10 +81,12 @@ public class CmControllerIntegrationTest
     [TestMethod]
     public async Task BrewCoffee_ShouldReturnSuccessAndIcedMessageOnNormalRequestWithHighTemp()
     {
+        // Arrange
+        // Setup the mock weather service returns 40 degree
         _mockWeatherService.Setup(service => service.GetTemperatureAsync(It.IsAny<IPAddress>()))
-            .ReturnsAsync(40);
+            .ReturnsAsync(new WeatherServiceRes((double)40));
         
-        // Arrange & Act
+        // Act
         var response = await _client.GetAsync("/brew-coffee");
 
         // Assert - 200

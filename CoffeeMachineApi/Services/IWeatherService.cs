@@ -1,8 +1,9 @@
 using System.Net;
+using CoffeeMachineApi.Models;
 
 namespace CoffeeMachineApi.Services;
 
 public interface IWeatherService
 {
-    Task<double?> GetTemperatureAsync(IPAddress? ipAddress);
+    Task<WeatherServiceRes> GetTemperatureAsync(IPAddress ipAddress);
 }

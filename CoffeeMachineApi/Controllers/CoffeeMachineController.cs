@@ -43,14 +43,14 @@ public class CoffeeMachineController : ControllerBase
         var ipAddress = HttpContext.Connection.RemoteIpAddress;
         
         // Get the celsius temperature based on client's IP location
-        double? celsiusTemp = await _weatherService.GetTemperatureAsync(ipAddress);
+        WeatherServiceRes? weatherServiceRes = await _weatherService.GetTemperatureAsync(ipAddress);
         
         // If the api have something wrong that cannot return temperature (null), return normal message.
-        if (celsiusTemp is null)
+        if (weatherServiceRes.Temperature is null)
         {
             _logger.LogWarning("Weather Service Unavailable");
         }
-        else if (celsiusTemp > 30)
+        else if (weatherServiceRes.Temperature > 30)
         {
             return StatusCode(200, new CoffeeMachineRes()
             {
