@@ -24,7 +24,7 @@ builder.Services.AddSingleton<IDateService, RealDateService>();
 
 builder.Services.AddHttpClient();
 
-builder.Services.AddSingleton<IWeatherService, WeatherService>();
+builder.Services.AddScoped<IWeatherService, WeatherService>();
 
 var app = builder.Build();
 

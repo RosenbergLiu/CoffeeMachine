@@ -15,7 +15,7 @@ public class CmControllerIntegrationTest
     private static WebApplicationFactory<Program> _factory;
     private static HttpClient _client;
     private Mock<IDateService> _mockDateService;
-    private const string ExpectedSuccessMessage = "Your piping hot coffee is ready";
+    private Mock<IWeatherService> _mockWeatherService;
     private const string ExpectedDateFormat = "yyyy-MM-ddTHH:mm:ssK"; // ISO 8601 format
     private const int NumberOfSimultaneousRequests = 5;
 
@@ -25,6 +25,10 @@ public class CmControllerIntegrationTest
         _mockDateService = new Mock<IDateService>();
         // Setup mock to return a date that is not 1 of April
         _mockDateService.Setup(service => service.GetCurrentDate()).Returns(new DateTime(2023, 3, 2));
+        
+        _mockWeatherService = new Mock<IWeatherService>();
+        _mockWeatherService.Setup(service => service.GetTemperatureAsync(It.IsAny<IPAddress>()))
+            .ReturnsAsync(20);
 
         // Setup the factory for in-memory testing with the Program class
         _factory = new WebApplicationFactory<Program>()
@@ -34,6 +38,7 @@ public class CmControllerIntegrationTest
                 {
                     // Replace the real IDateService with a mock
                     services.AddScoped<IDateService>(_ => _mockDateService.Object);
+                    services.AddScoped<IWeatherService>(_ => _mockWeatherService.Object);
                 });
             });
         _client = _factory.CreateClient();
@@ -45,7 +50,7 @@ public class CmControllerIntegrationTest
     }
     
     [TestMethod]
-    public async Task BrewCoffee_ShouldReturnSuccessOnNormalRequest()
+    public async Task BrewCoffee_ShouldReturnSuccessAndNormalMessageOnNormalRequestWithLowTemp()
     {
         // Arrange & Act
         var response = await _client.GetAsync("/brew-coffee");
@@ -56,7 +61,30 @@ public class CmControllerIntegrationTest
         // Assert - Message Content
         var content = await response.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<CoffeeMachineRes>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        Assert.AreEqual(ExpectedSuccessMessage, result?.Message, "The message content is not as expected.");
+        Assert.AreEqual("Your piping hot coffee is ready", result?.Message, "The message content is not as expected.");
+        
+        // Assert - Date Format
+        DateTime parsedDate;
+        bool isValidDate = DateTime.TryParseExact(result?.Prepared, ExpectedDateFormat, null, System.Globalization.DateTimeStyles.RoundtripKind, out parsedDate);
+        Assert.IsTrue(isValidDate, $"The date '{result?.Prepared}' is not in the expected format '{ExpectedDateFormat}'.");
+    }
+    
+    [TestMethod]
+    public async Task BrewCoffee_ShouldReturnSuccessAndIcedMessageOnNormalRequestWithHighTemp()
+    {
+        _mockWeatherService.Setup(service => service.GetTemperatureAsync(It.IsAny<IPAddress>()))
+            .ReturnsAsync(40);
+        
+        // Arrange & Act
+        var response = await _client.GetAsync("/brew-coffee");
+
+        // Assert - 200
+        Assert.AreEqual((HttpStatusCode)200, response.StatusCode);
+
+        // Assert - Message Content
+        var content = await response.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<CoffeeMachineRes>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        Assert.AreEqual("Your refreshing iced coffee is ready", result?.Message, "The message content is not as expected.");
         
         // Assert - Date Format
         DateTime parsedDate;

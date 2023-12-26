@@ -16,7 +16,7 @@ public class WeatherService : IWeatherService
         _apiKey = Configuration.GetSection("ApiKeys")["OpenWeather"];
     }
     
-    public async Task<double?> GetCurrentTemperatureAsync(IPAddress? ipAddress)
+    public async Task<double?> GetTemperatureAsync(IPAddress? ipAddress)
     {
         // Hard code the IP to a public IP address for testing purpose
         #if DEBUG
