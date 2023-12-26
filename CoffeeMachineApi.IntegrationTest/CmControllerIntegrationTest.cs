@@ -4,6 +4,7 @@ using System.Text.Json;
 using CoffeeMachineApi.Controllers;
 using CoffeeMachineApi.Models;
 using CoffeeMachineApi.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 
@@ -39,6 +40,13 @@ public class CmControllerIntegrationTest
                     // Replace the real IDateService with a mock
                     services.AddScoped<IDateService>(_ => _mockDateService.Object);
                     services.AddScoped<IWeatherService>(_ => _mockWeatherService.Object);
+                });
+                builder.ConfigureAppConfiguration((context, config) =>
+                {
+                    config.AddInMemoryCollection(new Dictionary<string, string>
+                    {
+                        {"HTTPS_PORT", "5001"}
+                    });
                 });
             });
         _client = _factory.CreateClient();
