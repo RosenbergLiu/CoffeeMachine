@@ -48,7 +48,7 @@ public class CoffeeMachineController : ControllerBase
         // If the api have something wrong that cannot return temperature (null), return normal message.
         if (weatherServiceRes.Temperature is null)
         {
-            _logger.LogWarning("Weather Service Unavailable");
+            _logger.LogWarning(weatherServiceRes.Message);
         }
         else if (weatherServiceRes.Temperature > 30)
         {
