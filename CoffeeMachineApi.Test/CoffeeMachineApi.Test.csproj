@@ -6,6 +6,10 @@
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
+
+        <RootNamespace>CoffeeMachineApi.Test</RootNamespace>
+
+        <AssemblyName>CoffeeMachineApi.Test</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

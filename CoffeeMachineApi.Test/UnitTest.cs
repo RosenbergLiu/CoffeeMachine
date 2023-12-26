@@ -1,17 +1,11 @@
-using System.Diagnostics;
-using System.Net;
-using CoffeeMachineApi.Controllers;
-using CoffeeMachineApi.Models;
-using CoffeeMachineApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Moq;
 
-namespace CoffeeMachineApi.UnitTest;
+namespace CoffeeMachineApi.Test;
 
 [TestClass]
-public class CmControllerUnitTest
+public class UnitTest
 {
     private Mock<IDateService> _mockDateService;
     private Mock<IWeatherService> _mockWeatherService;

@@ -1,17 +1,12 @@
 using Microsoft.AspNetCore.Mvc.Testing;
-using System.Net;
 using System.Text.Json;
-using CoffeeMachineApi.Controllers;
-using CoffeeMachineApi.Models;
-using CoffeeMachineApi.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 
-namespace CoffeeMachineApi.IntegrationTest;
+namespace CoffeeMachineApi.Test;
 
 [TestClass]
-public class CmControllerIntegrationTest
+public class IntegrationTest
 {
     private static WebApplicationFactory<Program> _factory;
     private static HttpClient _client;
