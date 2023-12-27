@@ -1,4 +1,3 @@
-using System.Net;
 using CoffeeMachineApi.Models;
 using CoffeeMachineApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -40,10 +39,10 @@ public class CoffeeMachineController : ControllerBase
         }
         
         // Get the client IP
-        var ipAddress = HttpContext.Connection.RemoteIpAddress;
+        var ipAddress = HttpContext.Connection.RemoteIpAddress!;
         
         // Get the celsius temperature based on client's IP location
-        WeatherServiceRes? weatherServiceRes = await _weatherService.GetTemperatureAsync(ipAddress);
+        WeatherServiceRes weatherServiceRes = await _weatherService.GetTemperatureAsync(ipAddress);
         
         // If the api have something wrong that cannot return temperature (null), return normal message.
         if (weatherServiceRes.Temperature is null)
