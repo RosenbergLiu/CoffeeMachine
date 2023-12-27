@@ -24,20 +24,18 @@ public class CoffeeMachineController : ControllerBase
         {
             return StatusCode(503, null);
         }
-        else
-        {
-            DateTime currentDate = _dateService.GetCurrentDate();
+        
+        DateTime currentDate = _dateService.GetCurrentDate();
 
-            if (currentDate.Date == new DateTime(DateTime.Now.Year, 4, 1).Date)
-            {
-                return StatusCode(418, null);
-            }
-            
-            return StatusCode(200, new CoffeeMachineRes()
-            {
-                Message = "Your piping hot coffee is ready",
-                Prepared = currentDate.ToString("yyyy-MM-ddTHH:mm:ssK")
-            });
+        if (currentDate.Date == new DateTime(DateTime.Now.Year, 4, 1).Date)
+        {
+            return StatusCode(418, null);
         }
+        
+        return StatusCode(200, new CoffeeMachineRes()
+        {
+            Message = "Your piping hot coffee is ready",
+            Prepared = currentDate.ToString("yyyy-MM-ddTHH:mm:ssK")
+        });
     }
 }
